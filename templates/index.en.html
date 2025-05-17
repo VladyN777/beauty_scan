@@ -1,25 +1,48 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Диагностика кожи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b5fff">
+  <link rel="manifest" href="/static/manifest.json">
+  <script>
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.register('/static/sw.js');
+    }
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
   <style>
-    body { font-family: sans-serif; animation: fadeIn 2s ease-in; background: #f4f4f4; padding: 20px; }
-    h1 { text-align: center; }
-    form { margin-top: 30px; text-align: center; }
-    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    body.dark { background: #111; color: #eee; }
+    .loader { border: 6px solid #ccc; border-top: 6px solid #0b5fff;
+              border-radius: 50%; width: 40px; height: 40px;
+              animation: spin 1s linear infinite; margin: 20px auto; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+
+  <meta charset="UTF-8">
+  <title>Skin AI - Index</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; }
+    a { margin: 10px; display: inline-block; }
+    .qr { margin-top: 30px; }
   </style>
 </head>
 <body>
-  <h1>Welcome to AI Skin Diagnosis</h1>
-  <p>Upload a photo of your skin to receive AI diagnosis and care recommendations</p>
-  <form action="/api/predict" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept="image/*" required><br><br>
-    <button type="submit">Analyze</button>
-  </form>
-  <video width="300" autoplay muted loop>
-    <source src="/static/video/sample.mp4" type="video/mp4">
-    Your browser does not support the video.
-  </video>
+  <h1>Skin AI</h1>
+  <p>Welcome to AI-powered skin diagnosis.</p>
+  <nav>
+    <a href="/?lang=en">Home</a>
+    <a href="/about?lang=en">About</a>
+    <a href="/pay?lang=en">Pay</a>
+  </nav>
+
+  <div class="social">Follow us on social media<br>
+    <a href="#">Facebook</a> | <a href="#">Telegram</a> | <a href="#">Instagram</a>
+  </div>
+  <div class="qr">
+    <p>Scan this QR to share your diagnosis</p>
+    <img src="/static/qr_en.png" alt="QR code">
+  </div>
 </body>
 </html>
