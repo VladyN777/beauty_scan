@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Диагностика кожи</title>
+  <style>
+    body { font-family: sans-serif; animation: fadeIn 2s ease-in; background: #f4f4f4; padding: 20px; }
+    h1 { text-align: center; }
+    form { margin-top: 30px; text-align: center; }
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+  </style>
+</head>
+<body>
+  <h1>Добро пожаловать в AI Skin</h1>
+  <p>Загрузите фото кожи, чтобы получить AI-анализ и рекомендации по уходу</p>
+  <form action="/api/predict" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required><br><br>
+    <button type="submit">Анализировать</button>
+  </form>
+  <video width="300" autoplay muted loop>
+    <source src="/static/video/sample.mp4" type="video/mp4">
+    Ваш браузер не поддерживает видео.
+  </video>
+</body>
+</html>
