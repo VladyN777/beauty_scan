@@ -1,0 +1,7 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://skin-ai.example.com/?lang=en</loc></url>
+  <url><loc>https://skin-ai.example.com/about?lang=en</loc></url>
+  <url><loc>https://skin-ai.example.com/pay?lang=en</loc></url>
+  <url><loc>https://skin-ai.example.com/?lang=ru</loc></url>
+  <url><loc>https://skin-ai.example.com/?lang=de</loc></url>
+</urlset>
