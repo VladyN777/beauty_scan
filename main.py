@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import shutil
@@ -11,23 +11,29 @@ from PIL import Image
 
 app = FastAPI()
 
+# Статические файлы (если есть изображения, css)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Пример проверки оплаты (временное хранилище по IP)
 user_paid = set()
 
+# Классы кожных заболеваний
 skin_classes = ["acne", "eczema", "psoriasis", "fungus", "healthy", "rosacea"]
 
+# Модель ResNet34 без загрузки через интернет
 model = resnet34(pretrained=False)
 model.fc = torch.nn.Linear(model.fc.in_features, len(skin_classes))
 model.eval()
 
+# Преобразование изображения
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
+# Предсказание
 def predict_skin_disease(image_path):
     image = Image.open(image_path).convert("RGB")
     tensor = transform(image).unsqueeze(0)
@@ -38,6 +44,7 @@ def predict_skin_disease(image_path):
         predictions = [(skin_classes[i], float(probs[i])) for i in top3.indices]
     return predictions
 
+# Загрузка фото и получение диагноза
 @app.post("/api/predict")
 async def predict(file: UploadFile = File(...), request: Request = None):
     file_location = f"temp_{file.filename}"
@@ -67,6 +74,7 @@ async def predict(file: UploadFile = File(...), request: Request = None):
         "recommendations": recommendations
     })
 
+# Фейковая оплата
 @app.get("/create-checkout-session")
 def start_payment(request: Request):
     user_ip = request.client.host
@@ -80,3 +88,9 @@ def payment_success():
 @app.get("/cancel")
 def payment_cancel():
     return JSONResponse(content={"message": "Оплата отменена. Попробуйте снова."})
+
+# Корневой маршрут — загружаем HTML из templates/index.html
+@app.get("/", response_class=HTMLResponse)
+def root():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
