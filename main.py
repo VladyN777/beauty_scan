@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import shutil
@@ -11,23 +11,29 @@ from PIL import Image
 
 app = FastAPI()
 
+# Статические файлы и шаблоны
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# Симуляция "оплаты" по IP
 user_paid = set()
 
+# Классы кожных заболеваний
 skin_classes = ["acne", "eczema", "psoriasis", "fungus", "healthy", "rosacea"]
 
+# Загрузка ResNet без интернета
 model = resnet34(pretrained=False)
 model.fc = torch.nn.Linear(model.fc.in_features, len(skin_classes))
 model.eval()
 
+# Преобразование изображения
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
+# Функция предсказания
 def predict_skin_disease(image_path):
     image = Image.open(image_path).convert("RGB")
     tensor = transform(image).unsqueeze(0)
@@ -38,6 +44,13 @@ def predict_skin_disease(image_path):
         predictions = [(skin_classes[i], float(probs[i])) for i in top3.indices]
     return predictions
 
+# Главная страница
+@app.get("/", response_class=HTMLResponse)
+def root():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+# Анализ по фото
 @app.post("/api/predict")
 async def predict(file: UploadFile = File(...), request: Request = None):
     file_location = f"temp_{file.filename}"
@@ -45,7 +58,6 @@ async def predict(file: UploadFile = File(...), request: Request = None):
         shutil.copyfileobj(file.file, buffer)
 
     user_ip = request.client.host if request else "anon"
-
     if user_ip not in user_paid:
         os.remove(file_location)
         return JSONResponse(content={"status": "needs_payment"})
@@ -67,6 +79,7 @@ async def predict(file: UploadFile = File(...), request: Request = None):
         "recommendations": recommendations
     })
 
+# Симуляция Stripe оплаты
 @app.get("/create-checkout-session")
 def start_payment(request: Request):
     user_ip = request.client.host
